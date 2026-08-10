@@ -1,0 +1,9 @@
+import { AlertCircle, Inbox } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+
+export function ErrorState({ message, retry }: { message: string; retry: () => void }) { return <Alert variant="destructive"><AlertCircle/><AlertTitle>Não foi possível carregar</AlertTitle><AlertDescription className="flex flex-col items-start gap-3"><span>{message}</span><Button variant="outline" size="sm" onClick={retry}>Tentar novamente</Button></AlertDescription></Alert> }
+export function EmptyState({ title, description }: { title: string; description: string }) { return <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-14 text-center"><span className="flex size-11 items-center justify-center rounded-full bg-muted"><Inbox className="size-5 text-muted-foreground"/></span><div><h3 className="font-medium">{title}</h3><p className="mt-1 text-sm text-muted-foreground">{description}</p></div></div> }
+export function TableSkeleton() { return <div className="flex flex-col gap-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div> }
+export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: React.ReactNode }) { return <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div className="flex flex-col gap-2"><p className="font-mono text-xs font-semibold uppercase tracking-widest text-primary">{eyebrow}</p><h1 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1><p className="max-w-2xl text-pretty text-sm leading-6 text-muted-foreground md:text-base">{description}</p></div>{action}</div> }
