@@ -5,12 +5,156 @@ import useSWR from 'swr'
 import type { Transaction } from '@/lib/types'
 import { fetcher } from '@/lib/api'
 import { currency, date, number } from '@/lib/formatters'
-import { PageHeader, ErrorState, EmptyState, TableSkeleton } from '@/components/data-states'
+import {
+  PageHeader,
+  ErrorState,
+  EmptyState,
+  TableSkeleton,
+} from '@/components/data-states'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
-export default function TransactionsPage(){const {data,error,isLoading,mutate}=useSWR<Transaction[]>('/portfolios/transactions',fetcher);const [ticker,setTicker]=useState('');const [type,setType]=useState('all');const filtered=(data||[]).filter(t=>t.asset.ticker.toLowerCase().includes(ticker.toLowerCase())&&(type==='all'||t.transaction_type===type));return <><PageHeader eyebrow="Movimentações" title="Histórico de operações" description="Consulte todas as compras e vendas registradas na sua carteira."/><div className="mb-6 flex flex-col gap-3 sm:flex-row"><Input className="sm:max-w-xs" placeholder="Filtrar por ticker" value={ticker} onChange={e=>setTicker(e.target.value)} aria-label="Filtrar por ticker"/><Select value={type} onValueChange={v=>setType(v??'all')}><SelectTrigger className="w-full sm:w-48"><SelectValue/></SelectTrigger><SelectContent><SelectGroup><SelectItem value="all">Todas as operações</SelectItem><SelectItem value="buy">Compras</SelectItem><SelectItem value="sell">Vendas</SelectItem></SelectGroup></SelectContent></Select></div>{error?<ErrorState message={error.message} retry={()=>mutate()}/>:isLoading?<TableSkeleton/>:filtered.length?<><div className="hidden overflow-hidden rounded-xl border bg-card md:block"><Table><TableHeader><TableRow><TableHead>Ativo</TableHead><TableHead>Quantidade</TableHead><TableHead>Preço</TableHead><TableHead>Tipo</TableHead><TableHead className="text-right">Data</TableHead></TableRow></TableHeader><TableBody>{filtered.map(t=><TableRow key={t.id_transaction}><TableCell><p className="font-medium">{t.asset.name}</p><p className="font-mono text-xs text-muted-foreground">{t.asset.ticker}</p></TableCell><TableCell>{number(t.quantity)}</TableCell><TableCell>{currency(t.price)}</TableCell><TableCell><Badge variant={t.transaction_type==='buy'?'default':'secondary'}>{t.transaction_type==='buy'?'Compra':'Venda'}</Badge></TableCell><TableCell className="text-right">{date(t.transaction_date)}</TableCell></TableRow>)}</TableBody></Table></div><div className="flex flex-col gap-3 md:hidden">{filtered.map(t=><Card key={t.id_transaction}><CardHeader><CardTitle className="flex justify-between gap-3"><span>{t.asset.name}</span><Badge variant={t.transaction_type==='buy'?'default':'secondary'}>{t.transaction_type==='buy'?'Compra':'Venda'}</Badge></CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-4 text-sm"><Metric label="Ticker" value={t.asset.ticker}/><Metric label="Quantidade" value={number(t.quantity)}/><Metric label="Preço" value={currency(t.price)}/><Metric label="Data" value={date(t.transaction_date)}/></CardContent></Card>)}</div></>:<EmptyState title="Nenhuma operação encontrada" description="Suas compras e vendas aparecerão aqui."/>}</>}
-function Metric({label,value}:{label:string;value:string}){return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 font-medium">{value}</p></div>}
+export default function TransactionsPage() {
+  const { data, error, isLoading, mutate } = useSWR<Transaction[]>(
+    '/portfolios/transactions',
+    fetcher,
+  )
+  const [ticker, setTicker] = useState('')
+  const [type, setType] = useState('all')
+  const filtered = (data || []).filter(
+    (t) =>
+      t.asset.ticker.toLowerCase().includes(ticker.toLowerCase()) &&
+      (type === 'all' || t.transaction_type === type),
+  )
+  return (
+    <>
+      <PageHeader
+        eyebrow="Movimentações"
+        title="Histórico de operações"
+        description="Consulte todas as compras e vendas registradas na sua carteira."
+      />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+        <Input
+          className="sm:max-w-xs"
+          placeholder="Filtrar por ticker"
+          value={ticker}
+          onChange={(e) => setTicker(e.target.value)}
+          aria-label="Filtrar por ticker"
+        />
+        <Select value={type} onValueChange={(v) => setType(v ?? 'all')}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">Todas as operações</SelectItem>
+              <SelectItem value="buy">Compras</SelectItem>
+              <SelectItem value="sell">Vendas</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      {error ? (
+        <ErrorState message={error.message} retry={() => mutate()} />
+      ) : isLoading ? (
+        <TableSkeleton />
+      ) : filtered.length ? (
+        <>
+          <div className="hidden overflow-hidden rounded-xl border bg-card md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ativo</TableHead>
+                  <TableHead>Quantidade</TableHead>
+                  <TableHead>Preço</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Data</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((t) => (
+                  <TableRow key={t.id_transaction}>
+                    <TableCell>
+                      <p className="font-medium">{t.asset.name}</p>
+                      <p className="font-mono text-xs text-muted-foreground">
+                        {t.asset.ticker}
+                      </p>
+                    </TableCell>
+                    <TableCell>{number(t.quantity)}</TableCell>
+                    <TableCell>{currency(t.price)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          t.transaction_type === 'buy' ? 'default' : 'secondary'
+                        }
+                      >
+                        {t.transaction_type === 'buy' ? 'Compra' : 'Venda'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {date(t.transaction_date)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex flex-col gap-3 md:hidden">
+            {filtered.map((t) => (
+              <Card key={t.id_transaction}>
+                <CardHeader>
+                  <CardTitle className="flex justify-between gap-3">
+                    <span>{t.asset.name}</span>
+                    <Badge
+                      variant={
+                        t.transaction_type === 'buy' ? 'default' : 'secondary'
+                      }
+                    >
+                      {t.transaction_type === 'buy' ? 'Compra' : 'Venda'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4 text-sm">
+                  <Metric label="Ticker" value={t.asset.ticker} />
+                  <Metric label="Quantidade" value={number(t.quantity)} />
+                  <Metric label="Preço" value={currency(t.price)} />
+                  <Metric label="Data" value={date(t.transaction_date)} />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      ) : (
+        <EmptyState
+          title="Nenhuma operação encontrada"
+          description="Suas compras e vendas aparecerão aqui."
+        />
+      )}
+    </>
+  )
+}
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-medium">{value}</p>
+    </div>
+  )
+}

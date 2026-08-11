@@ -8,8 +8,127 @@ import type { AuthResponse } from '@/lib/types'
 import { useAuth } from '@/components/auth-provider'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export default function LoginPage() { const [userName,setUserName]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState(''); const [loading,setLoading]=useState(false); const {signIn}=useAuth(); async function submit(e:React.FormEvent){e.preventDefault();setError('');setLoading(true);try{const data=await api<AuthResponse>('/auth/login',{method:'POST',body:JSON.stringify({user_name:userName,password})},false);signIn(data.access_token,userName)}catch(e){setError(e instanceof Error?e.message:'Não foi possível entrar.')}finally{setLoading(false)}} return <main className="grid min-h-screen lg:grid-cols-[1.05fr_.95fr]"><section className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex"><div className="flex items-center gap-3 text-xl font-semibold"><span className="flex size-10 items-center justify-center rounded-xl bg-primary-foreground/10"><TrendingUp/></span>FinTrack</div><div className="max-w-xl"><p className="font-mono text-sm uppercase tracking-widest opacity-70">Seu patrimônio, em perspectiva</p><h1 className="mt-5 text-balance text-5xl font-semibold leading-tight">Decisões melhores começam com uma visão clara.</h1><p className="mt-5 max-w-lg text-lg leading-relaxed opacity-75">Acompanhe posições, resultados e operações em um único painel financeiro.</p></div><p className="text-sm opacity-60">Controle, clareza e consistência.</p></section><section className="flex items-center justify-center p-5 sm:p-10"><Card className="w-full max-w-md shadow-none"><CardHeader><div className="mb-5 flex items-center gap-2 font-semibold text-primary lg:hidden"><TrendingUp className="size-5"/>FinTrack</div><CardTitle className="text-2xl">Boas-vindas</CardTitle><CardDescription>Entre para acessar sua carteira de investimentos.</CardDescription></CardHeader><CardContent><form onSubmit={submit} className="flex flex-col gap-5">{error&&<Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}<div className="flex flex-col gap-2"><Label htmlFor="user">Usuário</Label><Input id="user" autoComplete="username" value={userName} onChange={e=>setUserName(e.target.value)} required/></div><div className="flex flex-col gap-2"><Label htmlFor="password">Senha</Label><Input id="password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></div><Button type="submit" size="lg" disabled={loading}>{loading&&<LoaderCircle data-icon="inline-start" className="animate-spin"/>}{loading?'Entrando...':'Entrar'}</Button><p className="text-center text-sm text-muted-foreground">Ainda não tem conta? <Link className="font-medium text-primary underline-offset-4 hover:underline" href="/register">Cadastre-se</Link></p></form></CardContent></Card></section></main> }
+export default function LoginPage() {
+  const [userName, setUserName] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { signIn } = useAuth()
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const data = await api<AuthResponse>(
+        '/auth/login',
+        {
+          method: 'POST',
+          body: JSON.stringify({ user_name: userName, password }),
+        },
+        false,
+      )
+      signIn(data.access_token, userName)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível entrar.')
+    } finally {
+      setLoading(false)
+    }
+  }
+  return (
+    <main className="grid min-h-screen lg:grid-cols-[1.05fr_.95fr]">
+      <section className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
+        <div className="flex items-center gap-3 text-xl font-semibold">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary-foreground/10">
+            <TrendingUp />
+          </span>
+          FinTrack
+        </div>
+        <div className="max-w-xl">
+          <p className="font-mono text-sm uppercase tracking-widest opacity-70">
+            Seu patrimônio, em perspectiva
+          </p>
+          <h1 className="mt-5 text-balance text-5xl font-semibold leading-tight">
+            Decisões melhores começam com uma visão clara.
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-relaxed opacity-75">
+            Acompanhe posições, resultados e operações em um único painel
+            financeiro.
+          </p>
+        </div>
+        <p className="text-sm opacity-60">Controle, clareza e consistência.</p>
+      </section>
+      <section className="flex items-center justify-center p-5 sm:p-10">
+        <Card className="w-full max-w-md shadow-none">
+          <CardHeader>
+            <div className="mb-5 flex items-center gap-2 font-semibold text-primary lg:hidden">
+              <TrendingUp className="size-5" />
+              FinTrack
+            </div>
+            <CardTitle className="text-2xl">Boas-vindas</CardTitle>
+            <CardDescription>
+              Entre para acessar sua carteira de investimentos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={submit} className="flex flex-col gap-5">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="user">Usuário</Label>
+                <Input
+                  id="user"
+                  autoComplete="username"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" size="lg" disabled={loading}>
+                {loading && (
+                  <LoaderCircle
+                    data-icon="inline-start"
+                    className="animate-spin"
+                  />
+                )}
+                {loading ? 'Entrando...' : 'Entrar'}
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Ainda não tem conta?{' '}
+                <Link
+                  className="font-medium text-primary underline-offset-4 hover:underline"
+                  href="/register"
+                >
+                  Cadastre-se
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </section>
+    </main>
+  )
+}
