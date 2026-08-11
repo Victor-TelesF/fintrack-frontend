@@ -24,8 +24,19 @@ export async function api<T>(path: string, options: RequestInit = {}, authentica
   try { response = await fetch(`${API_URL}${path}`, { ...options, headers }) }
   catch { throw new ApiError('Não foi possível conectar à API. Verifique se o servidor está disponível.', 0) }
   if (response.status === 401 && typeof window !== 'undefined') {
-    localStorage.removeItem('fintrack_token'); localStorage.removeItem('fintrack_user'); window.dispatchEvent(new Event('fintrack:unauthorized'))
-    throw new ApiError('Sua sessão expirou. Entre novamente.', 401)
+    // Read possible backend detail message
+    let data: unknown = null
+    try { data = await response.json() } catch { /* resposta sem JSON */ }
+    // Only treat as session expiration when the request was authenticated and a token was sent
+    if (authenticated && token) {
+      localStorage.removeItem('fintrack_token')
+      localStorage.removeItem('fintrack_user')
+      window.dispatchEvent(new Event('fintrack:unauthorized'))
+      // Overwrite message to indicate expired session
+      throw new ApiError('Sua sessão expirou. Entre novamente.', 401)
+    }
+    // For unauthenticated calls (e.g. login/register), propagate backend message
+    throw new ApiError(parseDetail(data), 401)
   }
   if (!response.ok) {
     let data: unknown = null
